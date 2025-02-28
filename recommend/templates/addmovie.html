@@ -1,0 +1,43 @@
+{% extends 'base.html' %}
+{% block title %}Add Movie{% endblock title %}
+{% block css %}
+
+{% endblock css %}
+{%block content%}
+<div class="container wrapper">
+  {% if messages %}
+    {%for msg in messages%}
+    {% if msg %}   
+    <div class="alert alert-{{msg.tags}} alert-dismissible fade show font-weight-bold text-primary w-50 ml-3 mt-5">
+      {{msg}} 
+      <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+        <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
+    {% endif %}
+    {%endfor%}
+  {% endif %}     
+<div class="container mt-5">
+    <form class ="col-3 mx-auto p-3 shadow-lg" method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        <h2>Add Movie</h2>
+        <hr>
+        <div class="mb-3">
+          <label for="exampleInputEmail1" class="form-label">Title</label>
+          <input name="title" required type="text" class="form-control" >
+          </div>
+          <div class="mb-3">
+            <label for="exampleInputEmail1" class="form-label">Genres</label>
+            <select name="genres" class="form-select" required>
+                <option value="">Select Genre</option>
+                {% for genre in genres %}
+                <option value="{{ genre }}">{{ genre }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        
+      
+        <button type="submit" class="btn btn-success">Add Movie</button>
+      </form>
+</div>    
+{%endblock content%} 

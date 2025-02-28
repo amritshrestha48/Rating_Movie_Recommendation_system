@@ -1,0 +1,97 @@
+{% extends 'base.html' %}
+{% block title %}Home{% endblock title %}
+
+{% block content %}
+<style>
+
+    .card {
+        transition: transform 0.5s;
+      }
+
+      .card:hover {
+        transform: scale(1.1);
+      }
+      .welcome-container {
+        text-align: center;
+        color: black; /* adjust text color for better visibility */
+        padding: 30px;
+        margin: 30px auto; /* center the container */
+        border-radius: 10px; /* add rounded corners */
+    }
+    pre {
+            color: brown;
+            font-size: large;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+        }
+       
+    .button {
+    display: inline-block;
+      padding-top: 30px;
+      margin: 20px auto;
+      font-size: 30px;
+      background-color: black;
+      color: red;
+      text-decoration: mediumaquamarine;
+      border-radius: 20px;
+      transition: background-color 1.3s;
+    }
+
+    .button:hover {
+      background-color: white;
+    }
+</style>
+<div class="container wrapper padding-top:20px"> 
+{% if request.user.is_authenticated %}
+<center style="color:black; padding: 10px;">
+    <h2>Welcome {{ user.username }}!!</h2>
+    <p>Sit back, relax, and enjoy the magic of movies on our platform.</p>
+</center>
+{%if perms.recommend%} 
+<div class="welcome-container">
+    <h1>Light, Camera, Action!</h1>
+    <p>Embark on a journey into the heart of storytelling and cinematic wonders by becoming a part of our exclusive movie community.
+         Your ticket to a realm where every click unveils a new chapter of film magic awaits!</p>
+</div>
+{% else %}
+<a href="/recommend/" class="button">  Get Recommended Movie  </a>
+{%endif%}
+
+    {% else %}
+        <div class="welcome-container">
+            <h1>Steps in Our Cinematic Heaven!</h1>
+            <pre>"Movies are not just entertainment; they're a mirror reflecting the human experience. 
+        Lose yourself in the reflections, and you might discover a piece of your own story."</pre>
+        <p>Unlock the world of cinematic joy by registering for an account. Dive into a realm of movie recommendations, reviews, and personalized experiences.</p>
+        <p>Join us, and let the reel adventures begin!</p>
+            <a href="/register/" class="btn btn-success">Register</a>
+            <a href="/login/" class="btn btn-success">Login</a>
+        </div>
+    {% endif %}
+
+    <br>
+
+    <h2 class="my-4 text-dark">Movies List</h2>
+    <div class="row">
+        {% for movies, range, nSlides in allMovies|slice:":7" %}
+            {% for movie in movies|dictsort:"title" %}
+                <div class="col-xs-3 col-sm-3 col-md-3">
+                    <a href="/dashboard/" style="text-decoration: none; color: inherit;">
+                        <div class="card" style="width: 18rem; margin-bottom: 20px;">
+                            
+                            <div class="card-body">
+                                <h5 class="card-title text-dark">{{movie.title}}</h5>
+                            </div>
+                            <div class="card-footer">
+                                <small class="text-muted">{{movie.genres}}</small>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+            {% endfor %}
+        {% endfor %}
+    </div>
+</div>
+
+{% endblock content %}

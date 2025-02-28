@@ -1,0 +1,68 @@
+{% extends 'base.html' %}
+{% block title %}Home{% endblock title %}
+
+{% block content %}
+<div class="container wrapper padding-top:20px"> 
+
+    {% if cosine_recommendations %}
+        <h3 style="padding: 20px;">Cosine Similarity Recommendations
+            <a href="{% url 'confusion_matrix_cosine' %}" class="btn btn-primary">Cosine Confusion Matrix</a>
+        </h3>
+        <div class="row">
+            {% for item in cosine_recommendations %}
+            <div class="col-xs-3 col-sm-3 col-md-3">
+                <div class="card" style="width: 18rem; ">
+                    <div class="card-body">
+                        <h5 class="card-title text-dark">{{item.title}}</h5>
+                    </div>
+                    <div class="card-footer">
+                        <small class="text-muted">{{item.genres}}</small><br>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+
+    {% if pearson_recommendations %}
+        <h3 style="padding: 20px;">Pearson Correlation Recommendations
+            <a href="{% url 'confusion_matrix_pearson' %}" class="btn btn-primary">Pearson Confusion Matrix</a>
+        </h3>
+        <div class="row">
+            {% for item in pearson_recommendations %}
+            <div class="col-xs-3 col-sm-3 col-md-3">
+                <div class="card" style="width: 18rem; ">
+                    <div class="card-body">
+                        <h5 class="card-title text-dark">{{item.title}}</h5>
+                    </div>
+                    <div class="card-footer">
+                        <small class="text-muted">{{item.genres}}</small><br>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+    {% if combined_recommendations %}
+    <h3 style="padding: 20px;">Combined Recommendations</h3>
+    <div class="row">
+        {% for item in combined_recommendations %}
+        <div class="col-xs-3 col-sm-3 col-md-3">
+            <div class="card" style="width: 18rem; ">
+                <div class="card-body">
+                    <h5 class="card-title text-dark">{{item.title}}</h5>
+                </div>
+                <div class="card-footer">
+                    <small class="text-muted">{{item.genres}}</small><br>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    {% if not cosine_recommendations and not pearson_recommendations and not combined_recommendations %}
+        <h3 class="my-4 text-dark">No Recommended Movies Found</h3>
+    {% endif %}
+</div>
+{% endblock content %}
