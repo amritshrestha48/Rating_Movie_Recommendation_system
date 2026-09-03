@@ -11,6 +11,10 @@ from django.conf import settings
 from .cosine import generatecosineRecommendation
 from .pearson import generatepearsonRecommendation
 from django.db.models import Q
+import os
+from django.conf import settings
+
+
 
 
 # Create your views here.
@@ -158,33 +162,35 @@ def addmovie(request):
         # Retrieve form data
         title = request.POST.get('title')
         genres = request.POST.get('genres')
-        
 
         # Validate form data
         if not (title and genres):
             messages.error(request, "All fields must be filled.")
-            return redirect('/addmovie/')  # Redirect to the same page if validation fails
-        
-        if Movie.objects.filter(title=title,genres=genres).exists():
+            return redirect('/addmovie/')
+
+        if Movie.objects.filter(title=title, genres=genres).exists():
             messages.info(request, "Movie already exists.")
             return redirect('/addmovie/')
-        
+
         # Create a new movie instance
         Movie.objects.create(
             title=title,
-            genres=genres,
-        
-            )
+            genres=genres
+        )
 
         messages.success(request, "Movie added successfully.")
-        return redirect('/addmovie/')  # Redirect to the same page after successful submission
+        return redirect('/addmovie/')
 
     genres = set()
-    with open('C:/Users/amrit/Desktop/final8/movie.csv', newline='', encoding='utf-8') as csvfile:
+
+    movie_csv_path = os.path.join(settings.BASE_DIR, 'movie.csv')
+
+    with open(movie_csv_path, newline='', encoding='utf-8') as csvfile:
         reader = csv.reader(csvfile)
-        next(reader)  # Skip the header row
+        next(reader)
+
         for row in reader:
-            movie_genres = row[2]  # Assuming genres are in the third column (index 2)
+            movie_genres = row[2]
             genres.add(movie_genres)
 
     return render(request, 'addmovie.html', {'genres': genres})
@@ -206,16 +212,16 @@ def import_movies_from_csv(file_path):
                 )
 
 # Call the import_movies_from_csv function only once during initialization
-csv_file_path = os.path.join(settings.BASE_DIR, 'C:/Users/amrit/Desktop/final8/movie.csv')
-import_movies_from_csv(csv_file_path)
+
+
+
 
 
 def import_ratings_from_csv(file_path):
-    # Open the CSV file
     with open(file_path, 'r') as file:
         reader = csv.DictReader(file)
+
         for row in reader:
-            # Get user object if it exists
             user_id = row['userId']
             movie_id = row['movieId']
             rating_value = row['rating']
@@ -223,27 +229,29 @@ def import_ratings_from_csv(file_path):
             try:
                 user = User.objects.get(pk=user_id)
             except User.DoesNotExist:
-                # Handle the case where user doesn't exist
-                print(f"User with ID {user_id} does not exist. Skipping rating import for this user.")
+                print(f"User with ID {user_id} does not exist. Skipping rating import.")
                 continue
 
             try:
                 movie = Movie.objects.get(pk=movie_id)
             except Movie.DoesNotExist:
-                # Handle the case where movie doesn't exist
-                print(f"Movie with ID {movie_id} does not exist. Skipping rating import for this movie.")
+                print(f"Movie with ID {movie_id} does not exist. Skipping rating import.")
                 continue
 
-            # Check if the rating already exists for this user-movie combination
             if Rating.objects.filter(user=user, movie=movie).exists():
-                print(f"Rating for user {user_id} and movie {movie_id} already exists. Skipping duplicate.")
+                print(f"Rating already exists for user {user_id}, movie {movie_id}.")
                 continue
 
-            # Create rating object
-            Rating.objects.create(user=user, movie=movie, rating=rating_value)
+            Rating.objects.create(
+                user=user,
+                movie=movie,
+                rating=rating_value
+            )
 
 # Call the function with the path to your CSV file
-import_ratings_from_csv('C:/Users/amrit/Desktop/final8/rate.csv')
+
+rate_csv_path = os.path.join(settings.BASE_DIR, 'rate.csv')
+import_ratings_from_csv(rate_csv_path)
 
 
 
