@@ -17,6 +17,7 @@ from django.conf import settings
 
 
 
+
 # Create your views here.
 def filterMovieByTitle():
     # Filtering by titles alphabetically
@@ -72,7 +73,7 @@ def recommend(request):
 
 
 def register(request):
-    if request.method =="POST":
+    if request.method == "POST":
         first_name = request.POST.get('first_name')
         last_name = request.POST.get('last_name')
         username = request.POST.get('username')
@@ -82,42 +83,62 @@ def register(request):
             messages.error(request, "All fields must be filled.")
             return redirect('/register/')
 
-       
         if User.objects.filter(username=username).exists():
             messages.info(request, "Username already taken.")
             return redirect('/register/')
 
-       
         user = User.objects.create(
             first_name=first_name,
             last_name=last_name,
-            username=username,
+            username=username
         )
+
         user.set_password(password)
         user.save()
 
-        file_path = 'C:/Users/amrit/Desktop/final8/rate.csv'
-        with open(file_path, 'r') as file:
+        # Correct path for rate.csv
+        file_path = os.path.join(settings.BASE_DIR, 'rate.csv')
+
+        with open(file_path, 'r', encoding='utf-8') as file:
             reader = csv.DictReader(file)
+
             for row in reader:
                 csv_user_id = row['userId']
-                if csv_user_id == str(user.pk): 
+
+                if csv_user_id == str(user.pk):
                     movie_id = row['movieId']
                     rating_value = row['rating']
+
                     try:
                         movie = Movie.objects.get(pk=movie_id)
                     except Movie.DoesNotExist:
-                        print(f"Movie with ID {movie_id} does not exist. Skipping rating import for this movie.")
+                        print(
+                            f"Movie with ID {movie_id} does not exist. "
+                            f"Skipping rating import."
+                        )
                         continue
 
-                    if Rating.objects.filter(user=user, movie=movie).exists():
-                        print(f"Rating for user {user.pk} and movie {movie_id} already exists. Skipping duplicate.")
+                    if Rating.objects.filter(
+                        user=user,
+                        movie=movie
+                    ).exists():
+                        print(
+                            f"Rating already exists for user {user.pk} "
+                            f"and movie {movie_id}."
+                        )
                         continue
 
-                    # Create rating object
-                    Rating.objects.create(user=user, movie=movie, rating=rating_value)
+                    Rating.objects.create(
+                        user=user,
+                        movie=movie,
+                        rating=rating_value
+                    )
 
-        messages.info(request, "Account created successfully with ratings imported if available.")
+        messages.success(
+            request,
+            "Account created successfully with ratings imported if available."
+        )
+
         return redirect('/register/')
 
     return render(request, 'register.html')
